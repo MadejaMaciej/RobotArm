@@ -14,6 +14,7 @@
 namespace Microsoft.Samples.Kinect.SkeletonBasics
 {
     using System.IO;
+    using System.Diagnostics;
     using System.Windows;
     using System.Windows.Media;
     using Microsoft.Kinect;
@@ -190,7 +191,6 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 {
                     foreach (Skeleton skel in skeletons)
                     {
-
                         if (skel.TrackingState == SkeletonTrackingState.Tracked)
                         {
                             this.DrawBonesAndJoints(skel, dc);
@@ -229,6 +229,15 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
             this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
             this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
+
+            Trace.WriteLine(JointType.ShoulderLeft);
+            Trace.WriteLine(JointType.ElbowLeft);
+            Trace.WriteLine(JointType.WristLeft);
+            Trace.WriteLine(JointType.HandLeft);
+            Trace.WriteLine(JointType.ShoulderRight);
+            Trace.WriteLine(JointType.ElbowRight);
+            Trace.WriteLine(JointType.WristRight);
+            Trace.WriteLine(JointType.HandRight);
  
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
