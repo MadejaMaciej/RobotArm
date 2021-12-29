@@ -13,8 +13,11 @@
 
 namespace Microsoft.Samples.Kinect.SkeletonBasics
 {
-    using System.IO;
+    using System;
+    using System.Collections.Specialized;
     using System.Diagnostics;
+    using System.IO;
+    using System.Net;
     using System.Windows;
     using System.Windows.Media;
     using Microsoft.Kinect;
@@ -24,6 +27,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NameValueCollection values = new NameValueCollection();
         /// <summary>
         /// Width of output drawing
         /// </summary>
@@ -213,7 +217,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         }
 
         /// <summary>
-        /// Draws a arms bones and joints
+        /// Draws a arms bones and joints and logs them
         /// </summary>
         /// <param name="skeleton">skeleton to draw</param>
         /// <param name="drawingContext">drawing context to draw to</param>
@@ -270,6 +274,65 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 + " " + skeleton.Joints[JointType.HandRight].Position.Y 
                 + " " + skeleton.Joints[JointType.HandRight].Position.Z
             );
+
+            // Send data to server
+
+            using (var c = new WebClient())
+            {
+                try
+                {
+                    this.values.Clear();
+
+                    //Add left shoulder position
+                    this.values.Add("slx", skeleton.Joints[JointType.ShoulderLeft].Position.X.ToString());
+                    this.values.Add("sly", skeleton.Joints[JointType.ShoulderLeft].Position.Y.ToString());
+                    this.values.Add("slz", skeleton.Joints[JointType.ShoulderLeft].Position.Z.ToString());
+
+                    //Add left elbow position
+                    this.values.Add("elx", skeleton.Joints[JointType.ElbowLeft].Position.X.ToString());
+                    this.values.Add("ely", skeleton.Joints[JointType.ElbowLeft].Position.Y.ToString());
+                    this.values.Add("elz", skeleton.Joints[JointType.ElbowLeft].Position.Z.ToString());
+
+                    //Add left wrist position
+                    this.values.Add("wlx", skeleton.Joints[JointType.WristLeft].Position.X.ToString());
+                    this.values.Add("wly", skeleton.Joints[JointType.WristLeft].Position.Y.ToString());
+                    this.values.Add("wlz", skeleton.Joints[JointType.WristLeft].Position.Z.ToString());
+
+                    //Add left hand position
+                    this.values.Add("hlx", skeleton.Joints[JointType.HandLeft].Position.X.ToString());
+                    this.values.Add("hly", skeleton.Joints[JointType.HandLeft].Position.Y.ToString());
+                    this.values.Add("hlz", skeleton.Joints[JointType.HandLeft].Position.Z.ToString());
+
+                    //Add right shoulder position
+                    this.values.Add("srx", skeleton.Joints[JointType.ShoulderRight].Position.X.ToString());
+                    this.values.Add("sry", skeleton.Joints[JointType.ShoulderRight].Position.Y.ToString());
+                    this.values.Add("srz", skeleton.Joints[JointType.ShoulderRight].Position.Z.ToString());
+
+                    //Add right elbow position
+                    this.values.Add("erx", skeleton.Joints[JointType.ElbowRight].Position.X.ToString());
+                    this.values.Add("ery", skeleton.Joints[JointType.ElbowRight].Position.Y.ToString());
+                    this.values.Add("erz", skeleton.Joints[JointType.ElbowRight].Position.Z.ToString());
+
+                    //Add right wrist position
+                    this.values.Add("wrx", skeleton.Joints[JointType.WristRight].Position.X.ToString());
+                    this.values.Add("wry", skeleton.Joints[JointType.WristRight].Position.Y.ToString());
+                    this.values.Add("wrz", skeleton.Joints[JointType.WristRight].Position.Z.ToString());
+
+                    //Add right hand position
+                    this.values.Add("hrx", skeleton.Joints[JointType.HandRight].Position.X.ToString());
+                    this.values.Add("hry", skeleton.Joints[JointType.HandRight].Position.Y.ToString());
+                    this.values.Add("hrz", skeleton.Joints[JointType.HandRight].Position.Z.ToString());
+
+                    Trace.WriteLine(this.values.Count);
+
+                    c.UploadValues("http://127.0.0.1:3000/api/uploadPosition", "POST", values);
+
+                }
+                catch (WebException e)
+                {
+                    Trace.WriteLine(e.ToString());
+                }
+            }
  
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
