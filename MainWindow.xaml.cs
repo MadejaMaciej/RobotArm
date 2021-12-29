@@ -230,14 +230,46 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
             this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
 
-            Trace.WriteLine(JointType.ShoulderLeft);
-            Trace.WriteLine(JointType.ElbowLeft);
-            Trace.WriteLine(JointType.WristLeft);
-            Trace.WriteLine(JointType.HandLeft);
-            Trace.WriteLine(JointType.ShoulderRight);
-            Trace.WriteLine(JointType.ElbowRight);
-            Trace.WriteLine(JointType.WristRight);
-            Trace.WriteLine(JointType.HandRight);
+            Trace.WriteLine(
+                "Left shoulder: " + skeleton.Joints[JointType.ShoulderLeft].Position.X 
+                + " " + skeleton.Joints[JointType.ShoulderLeft].Position.Y 
+                + " " + skeleton.Joints[JointType.ShoulderLeft].Position.Z
+            );
+            Trace.WriteLine(
+                "Left elbow: " + skeleton.Joints[JointType.ElbowLeft].Position.X 
+                + " " + skeleton.Joints[JointType.ElbowLeft].Position.Y 
+                + " " + skeleton.Joints[JointType.ElbowLeft].Position.Z
+            );
+            Trace.WriteLine(
+                "Left wrist: " + skeleton.Joints[JointType.WristLeft].Position.X 
+                + " " + skeleton.Joints[JointType.WristLeft].Position.Y 
+                + " " + skeleton.Joints[JointType.WristLeft].Position.Z
+            );
+            Trace.WriteLine(
+                "Left hand: " + skeleton.Joints[JointType.HandLeft].Position.X 
+                + " " + skeleton.Joints[JointType.HandLeft].Position.Y 
+                + " " + skeleton.Joints[JointType.HandLeft].Position.Z
+            );
+            Trace.WriteLine(
+                "Right shoulder: " + skeleton.Joints[JointType.ShoulderRight].Position.X 
+                + " " + skeleton.Joints[JointType.ShoulderRight].Position.Y 
+                + " " + skeleton.Joints[JointType.ShoulderRight].Position.Z
+            );
+            Trace.WriteLine(
+                "Right elbow: " + skeleton.Joints[JointType.ElbowRight].Position.X 
+                + " " + skeleton.Joints[JointType.ElbowRight].Position.Y 
+                + " " + skeleton.Joints[JointType.ElbowRight].Position.Z
+            );
+            Trace.WriteLine(
+                "Right wrist: " + skeleton.Joints[JointType.WristRight].Position.X 
+                + " " + skeleton.Joints[JointType.WristRight].Position.Y 
+                + " " + skeleton.Joints[JointType.WristRight].Position.Z
+            );
+            Trace.WriteLine(
+                "Right hand: " + skeleton.Joints[JointType.HandRight].Position.X 
+                + " " + skeleton.Joints[JointType.HandRight].Position.Y 
+                + " " + skeleton.Joints[JointType.HandRight].Position.Z
+            );
  
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
