@@ -61,6 +61,12 @@
             <StatusBarItem Padding="0 0 0 10">
                 <TextBlock Name="statusBarText" Margin="-1 0 0 0">Click 'Seated' to change skeletal pipeline type!</TextBlock>
             </StatusBarItem>
-        </StatusBar> 
+        </StatusBar>
+		<CheckBox Grid.Row="2" Style="{StaticResource SquareCheckBox}" Content="Left Hand Mode" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="200 10 10 10" Name="checkLeftHandedMode" Checked="CheckLeftHandedModeChanged" Unchecked="CheckLeftHandedModeChanged"/>
+		<StatusBar Grid.Row="3" HorizontalAlignment="Stretch" Name="statusBar2" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}">
+			<StatusBarItem Padding="0 0 0 10">
+				<TextBlock Name="statusBarText2" Margin="-1 0 0 0">Click 'Left Handed' to get info from user left hand!</TextBlock>
+			</StatusBarItem>
+		</StatusBar>
     </Grid>
 </Window>

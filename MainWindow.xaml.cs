@@ -27,7 +27,16 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Bool to check if left handed
+        /// </summary>
+        private bool leftHanded = false;
+       
+        /// <summary>
+        /// Values sended to server
+        /// </summary
         private NameValueCollection values = new NameValueCollection();
+        
         /// <summary>
         /// Width of output drawing
         /// </summary>
@@ -223,57 +232,66 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="drawingContext">drawing context to draw to</param>
         private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext)
         {
-            // Render Left Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
+
+            if (this.leftHanded)
+            {
+                // Render Left Arm
+                this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
+                this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
+                this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
+
+                Trace.WriteLine(
+                    "Left shoulder: " + skeleton.Joints[JointType.ShoulderLeft].Position.X 
+                    + " " + skeleton.Joints[JointType.ShoulderLeft].Position.Y 
+                    + " " + skeleton.Joints[JointType.ShoulderLeft].Position.Z
+                );
+                Trace.WriteLine(
+                    "Left elbow: " + skeleton.Joints[JointType.ElbowLeft].Position.X 
+                    + " " + skeleton.Joints[JointType.ElbowLeft].Position.Y 
+                    + " " + skeleton.Joints[JointType.ElbowLeft].Position.Z
+                );
+                Trace.WriteLine(
+                    "Left wrist: " + skeleton.Joints[JointType.WristLeft].Position.X 
+                    + " " + skeleton.Joints[JointType.WristLeft].Position.Y 
+                    + " " + skeleton.Joints[JointType.WristLeft].Position.Z
+                );
+                Trace.WriteLine(
+                    "Left hand: " + skeleton.Joints[JointType.HandLeft].Position.X 
+                    + " " + skeleton.Joints[JointType.HandLeft].Position.Y 
+                    + " " + skeleton.Joints[JointType.HandLeft].Position.Z
+                );
+            }
+            else
+            {
+                // Render Right Arm
+                this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
+                this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
+                this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
+
+                Trace.WriteLine(
+                    "Right shoulder: " + skeleton.Joints[JointType.ShoulderRight].Position.X 
+                    + " " + skeleton.Joints[JointType.ShoulderRight].Position.Y 
+                    + " " + skeleton.Joints[JointType.ShoulderRight].Position.Z
+                );
+                Trace.WriteLine(
+                    "Right elbow: " + skeleton.Joints[JointType.ElbowRight].Position.X 
+                    + " " + skeleton.Joints[JointType.ElbowRight].Position.Y 
+                    + " " + skeleton.Joints[JointType.ElbowRight].Position.Z
+                );
+                Trace.WriteLine(
+                    "Right wrist: " + skeleton.Joints[JointType.WristRight].Position.X 
+                    + " " + skeleton.Joints[JointType.WristRight].Position.Y 
+                    + " " + skeleton.Joints[JointType.WristRight].Position.Z
+                );
+                Trace.WriteLine(
+                    "Right hand: " + skeleton.Joints[JointType.HandRight].Position.X 
+                    + " " + skeleton.Joints[JointType.HandRight].Position.Y 
+                    + " " + skeleton.Joints[JointType.HandRight].Position.Z
+                );
+            }
 
 
-            // Render Right Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
-            this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
 
-            Trace.WriteLine(
-                "Left shoulder: " + skeleton.Joints[JointType.ShoulderLeft].Position.X 
-                + " " + skeleton.Joints[JointType.ShoulderLeft].Position.Y 
-                + " " + skeleton.Joints[JointType.ShoulderLeft].Position.Z
-            );
-            Trace.WriteLine(
-                "Left elbow: " + skeleton.Joints[JointType.ElbowLeft].Position.X 
-                + " " + skeleton.Joints[JointType.ElbowLeft].Position.Y 
-                + " " + skeleton.Joints[JointType.ElbowLeft].Position.Z
-            );
-            Trace.WriteLine(
-                "Left wrist: " + skeleton.Joints[JointType.WristLeft].Position.X 
-                + " " + skeleton.Joints[JointType.WristLeft].Position.Y 
-                + " " + skeleton.Joints[JointType.WristLeft].Position.Z
-            );
-            Trace.WriteLine(
-                "Left hand: " + skeleton.Joints[JointType.HandLeft].Position.X 
-                + " " + skeleton.Joints[JointType.HandLeft].Position.Y 
-                + " " + skeleton.Joints[JointType.HandLeft].Position.Z
-            );
-            Trace.WriteLine(
-                "Right shoulder: " + skeleton.Joints[JointType.ShoulderRight].Position.X 
-                + " " + skeleton.Joints[JointType.ShoulderRight].Position.Y 
-                + " " + skeleton.Joints[JointType.ShoulderRight].Position.Z
-            );
-            Trace.WriteLine(
-                "Right elbow: " + skeleton.Joints[JointType.ElbowRight].Position.X 
-                + " " + skeleton.Joints[JointType.ElbowRight].Position.Y 
-                + " " + skeleton.Joints[JointType.ElbowRight].Position.Z
-            );
-            Trace.WriteLine(
-                "Right wrist: " + skeleton.Joints[JointType.WristRight].Position.X 
-                + " " + skeleton.Joints[JointType.WristRight].Position.Y 
-                + " " + skeleton.Joints[JointType.WristRight].Position.Z
-            );
-            Trace.WriteLine(
-                "Right hand: " + skeleton.Joints[JointType.HandRight].Position.X 
-                + " " + skeleton.Joints[JointType.HandRight].Position.Y 
-                + " " + skeleton.Joints[JointType.HandRight].Position.Z
-            );
 
             // Send data to server
 
@@ -283,48 +301,56 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 {
                     this.values.Clear();
 
-                    //Add left shoulder position
-                    this.values.Add("slx", skeleton.Joints[JointType.ShoulderLeft].Position.X.ToString());
-                    this.values.Add("sly", skeleton.Joints[JointType.ShoulderLeft].Position.Y.ToString());
-                    this.values.Add("slz", skeleton.Joints[JointType.ShoulderLeft].Position.Z.ToString());
+                    if (this.leftHanded)
+                    {
+                        //Add left shoulder position
+                        this.values.Add("slx", skeleton.Joints[JointType.ShoulderLeft].Position.X.ToString());
+                        this.values.Add("sly", skeleton.Joints[JointType.ShoulderLeft].Position.Y.ToString());
+                        this.values.Add("slz", skeleton.Joints[JointType.ShoulderLeft].Position.Z.ToString());
 
-                    //Add left elbow position
-                    this.values.Add("elx", skeleton.Joints[JointType.ElbowLeft].Position.X.ToString());
-                    this.values.Add("ely", skeleton.Joints[JointType.ElbowLeft].Position.Y.ToString());
-                    this.values.Add("elz", skeleton.Joints[JointType.ElbowLeft].Position.Z.ToString());
+                        //Add left elbow position
+                        this.values.Add("elx", skeleton.Joints[JointType.ElbowLeft].Position.X.ToString());
+                        this.values.Add("ely", skeleton.Joints[JointType.ElbowLeft].Position.Y.ToString());
+                        this.values.Add("elz", skeleton.Joints[JointType.ElbowLeft].Position.Z.ToString());
 
-                    //Add left wrist position
-                    this.values.Add("wlx", skeleton.Joints[JointType.WristLeft].Position.X.ToString());
-                    this.values.Add("wly", skeleton.Joints[JointType.WristLeft].Position.Y.ToString());
-                    this.values.Add("wlz", skeleton.Joints[JointType.WristLeft].Position.Z.ToString());
+                        //Add left wrist position
+                        this.values.Add("wlx", skeleton.Joints[JointType.WristLeft].Position.X.ToString());
+                        this.values.Add("wly", skeleton.Joints[JointType.WristLeft].Position.Y.ToString());
+                        this.values.Add("wlz", skeleton.Joints[JointType.WristLeft].Position.Z.ToString());
 
-                    //Add left hand position
-                    this.values.Add("hlx", skeleton.Joints[JointType.HandLeft].Position.X.ToString());
-                    this.values.Add("hly", skeleton.Joints[JointType.HandLeft].Position.Y.ToString());
-                    this.values.Add("hlz", skeleton.Joints[JointType.HandLeft].Position.Z.ToString());
+                        //Add left hand position
+                        this.values.Add("hlx", skeleton.Joints[JointType.HandLeft].Position.X.ToString());
+                        this.values.Add("hly", skeleton.Joints[JointType.HandLeft].Position.Y.ToString());
+                        this.values.Add("hlz", skeleton.Joints[JointType.HandLeft].Position.Z.ToString());
+                    }
+                    else
+                    {
+                        //Add right shoulder position
+                        this.values.Add("srx", skeleton.Joints[JointType.ShoulderRight].Position.X.ToString());
+                        this.values.Add("sry", skeleton.Joints[JointType.ShoulderRight].Position.Y.ToString());
+                        this.values.Add("srz", skeleton.Joints[JointType.ShoulderRight].Position.Z.ToString());
 
-                    //Add right shoulder position
-                    this.values.Add("srx", skeleton.Joints[JointType.ShoulderRight].Position.X.ToString());
-                    this.values.Add("sry", skeleton.Joints[JointType.ShoulderRight].Position.Y.ToString());
-                    this.values.Add("srz", skeleton.Joints[JointType.ShoulderRight].Position.Z.ToString());
+                        //Add right elbow position
+                        this.values.Add("erx", skeleton.Joints[JointType.ElbowRight].Position.X.ToString());
+                        this.values.Add("ery", skeleton.Joints[JointType.ElbowRight].Position.Y.ToString());
+                        this.values.Add("erz", skeleton.Joints[JointType.ElbowRight].Position.Z.ToString());
 
-                    //Add right elbow position
-                    this.values.Add("erx", skeleton.Joints[JointType.ElbowRight].Position.X.ToString());
-                    this.values.Add("ery", skeleton.Joints[JointType.ElbowRight].Position.Y.ToString());
-                    this.values.Add("erz", skeleton.Joints[JointType.ElbowRight].Position.Z.ToString());
+                        //Add right wrist position
+                        this.values.Add("wrx", skeleton.Joints[JointType.WristRight].Position.X.ToString());
+                        this.values.Add("wry", skeleton.Joints[JointType.WristRight].Position.Y.ToString());
+                        this.values.Add("wrz", skeleton.Joints[JointType.WristRight].Position.Z.ToString());
 
-                    //Add right wrist position
-                    this.values.Add("wrx", skeleton.Joints[JointType.WristRight].Position.X.ToString());
-                    this.values.Add("wry", skeleton.Joints[JointType.WristRight].Position.Y.ToString());
-                    this.values.Add("wrz", skeleton.Joints[JointType.WristRight].Position.Z.ToString());
+                        //Add right hand position
+                        this.values.Add("hrx", skeleton.Joints[JointType.HandRight].Position.X.ToString());
+                        this.values.Add("hry", skeleton.Joints[JointType.HandRight].Position.Y.ToString());
+                        this.values.Add("hrz", skeleton.Joints[JointType.HandRight].Position.Z.ToString());
+                    }
 
-                    //Add right hand position
-                    this.values.Add("hrx", skeleton.Joints[JointType.HandRight].Position.X.ToString());
-                    this.values.Add("hry", skeleton.Joints[JointType.HandRight].Position.Y.ToString());
-                    this.values.Add("hrz", skeleton.Joints[JointType.HandRight].Position.Z.ToString());
+
 
                     Trace.WriteLine(this.values.Count);
 
+                    //Send values to server
                     c.UploadValues("http://127.0.0.1:3000/api/uploadPosition", "POST", values);
 
                 }
@@ -420,6 +446,26 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 else
                 {
                     this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Default;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles changing your hand to left one
+        /// </summary>
+        /// <param name="sender">object sending the event</param>
+        /// <param name="e">event arguments</param>
+        private void CheckLeftHandedModeChanged(object sender, RoutedEventArgs e)
+        {
+            if (null != this.sensor)
+            {
+                if (this.checkLeftHandedMode.IsChecked.GetValueOrDefault())
+                {
+                    this.leftHanded = true;
+                }
+                else
+                {
+                    this.leftHanded = false;
                 }
             }
         }
