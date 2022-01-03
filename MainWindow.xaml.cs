@@ -13,6 +13,8 @@
 
 namespace Microsoft.Samples.Kinect.SkeletonBasics
 {
+
+    ///Imports
     using System;
     using System.Collections.Specialized;
     using System.Diagnostics;
@@ -21,6 +23,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     using System.Windows;
     using System.Windows.Media;
     using Microsoft.Kinect;
+    using Lego.Ev3.Core;
+    using Lego.Ev3.Desktop;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -70,7 +74,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <summary>
         /// Brush used for drawing joints that are currently tracked
         /// </summary>
-        private readonly Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 68, 192, 68));
+        private readonly Brush trackedJointBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 68, 192, 68));
 
         /// <summary>
         /// Brush used for drawing joints that are currently inferred
@@ -103,6 +107,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         private DrawingImage imageSource;
 
         /// <summary>
+        /// Ev3 brick declaration
+        /// </summary>
+        private Brick brick;
+
+        /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
         public MainWindow()
@@ -115,8 +124,23 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// </summary>
         /// <param name="sender">object sending the event</param>
         /// <param name="e">event arguments</param>
-        private void WindowLoaded(object sender, RoutedEventArgs e)
+        private async void WindowLoaded(object sender, RoutedEventArgs e)
         {
+            //Start bricks
+            try
+            {
+                this.brick = new Brick(new BluetoothCommunication("COM4"));
+                await this.brick.ConnectAsync();
+                await this.brick.DirectCommand.PlayToneAsync(100, 600, 500);
+                Trace.WriteLine("Brick started");
+            }
+            catch (IOException)
+            {
+                this.brick = null;
+                Trace.WriteLine("No brick detected");
+            }
+
+
             // Create the drawing group we'll use for drawing
             this.drawingGroup = new DrawingGroup();
 
@@ -158,7 +182,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 }
             }
 
-            if (null == this.sensor)
+            if (null == this.sensor || null == this.brick)
             {
                 this.statusBarText.Text = Properties.Resources.NoKinectReady;
             }
@@ -174,6 +198,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             if (null != this.sensor)
             {
                 this.sensor.Stop();
+            }
+
+            if (null != this.brick)
+            {
+                this.brick.Disconnect();
             }
         }
 
@@ -260,6 +289,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     + " " + skeleton.Joints[JointType.HandLeft].Position.Y 
                     + " " + skeleton.Joints[JointType.HandLeft].Position.Z
                 );
+                // Send data to brick
+                moveRotors(false);
             }
             else
             {
@@ -288,77 +319,12 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     + " " + skeleton.Joints[JointType.HandRight].Position.Y 
                     + " " + skeleton.Joints[JointType.HandRight].Position.Z
                 );
+
+                // Send data to brick
+                moveRotors(true);
             }
 
-
-
-
-            // Send data to server
-
-            using (var c = new WebClient())
-            {
-                try
-                {
-                    this.values.Clear();
-
-                    if (this.leftHanded)
-                    {
-                        //Add left shoulder position
-                        this.values.Add("slx", skeleton.Joints[JointType.ShoulderLeft].Position.X.ToString());
-                        this.values.Add("sly", skeleton.Joints[JointType.ShoulderLeft].Position.Y.ToString());
-                        this.values.Add("slz", skeleton.Joints[JointType.ShoulderLeft].Position.Z.ToString());
-
-                        //Add left elbow position
-                        this.values.Add("elx", skeleton.Joints[JointType.ElbowLeft].Position.X.ToString());
-                        this.values.Add("ely", skeleton.Joints[JointType.ElbowLeft].Position.Y.ToString());
-                        this.values.Add("elz", skeleton.Joints[JointType.ElbowLeft].Position.Z.ToString());
-
-                        //Add left wrist position
-                        this.values.Add("wlx", skeleton.Joints[JointType.WristLeft].Position.X.ToString());
-                        this.values.Add("wly", skeleton.Joints[JointType.WristLeft].Position.Y.ToString());
-                        this.values.Add("wlz", skeleton.Joints[JointType.WristLeft].Position.Z.ToString());
-
-                        //Add left hand position
-                        this.values.Add("hlx", skeleton.Joints[JointType.HandLeft].Position.X.ToString());
-                        this.values.Add("hly", skeleton.Joints[JointType.HandLeft].Position.Y.ToString());
-                        this.values.Add("hlz", skeleton.Joints[JointType.HandLeft].Position.Z.ToString());
-                    }
-                    else
-                    {
-                        //Add right shoulder position
-                        this.values.Add("srx", skeleton.Joints[JointType.ShoulderRight].Position.X.ToString());
-                        this.values.Add("sry", skeleton.Joints[JointType.ShoulderRight].Position.Y.ToString());
-                        this.values.Add("srz", skeleton.Joints[JointType.ShoulderRight].Position.Z.ToString());
-
-                        //Add right elbow position
-                        this.values.Add("erx", skeleton.Joints[JointType.ElbowRight].Position.X.ToString());
-                        this.values.Add("ery", skeleton.Joints[JointType.ElbowRight].Position.Y.ToString());
-                        this.values.Add("erz", skeleton.Joints[JointType.ElbowRight].Position.Z.ToString());
-
-                        //Add right wrist position
-                        this.values.Add("wrx", skeleton.Joints[JointType.WristRight].Position.X.ToString());
-                        this.values.Add("wry", skeleton.Joints[JointType.WristRight].Position.Y.ToString());
-                        this.values.Add("wrz", skeleton.Joints[JointType.WristRight].Position.Z.ToString());
-
-                        //Add right hand position
-                        this.values.Add("hrx", skeleton.Joints[JointType.HandRight].Position.X.ToString());
-                        this.values.Add("hry", skeleton.Joints[JointType.HandRight].Position.Y.ToString());
-                        this.values.Add("hrz", skeleton.Joints[JointType.HandRight].Position.Z.ToString());
-                    }
-
-
-
-                    Trace.WriteLine(this.values.Count);
-
-                    //Send values to server
-                    c.UploadValues("http://127.0.0.1:3000/api/uploadPosition", "POST", values);
-
-                }
-                catch (WebException e)
-                {
-                    Trace.WriteLine(e.ToString());
-                }
-            }
+            
  
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
@@ -378,6 +344,22 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 {
                     drawingContext.DrawEllipse(drawBrush, null, this.SkeletonPointToScreen(joint.Position), JointThickness, JointThickness);
                 }
+            }
+        }
+
+        /// <summary>
+        /// moving robot 
+        /// </summary>
+        /// <param name="rotor">true means right hand, false left</param>
+        private async void moveRotors(bool rotor)
+        {
+            if (rotor)
+            {
+                await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
+            }
+            else
+            {
+                await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
             }
         }
 
