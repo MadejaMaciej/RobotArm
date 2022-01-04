@@ -353,13 +353,16 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="rotor">true means right hand, false left</param>
         private async void moveRotors(bool rotor)
         {
-            if (rotor)
+            if(this.brick != null)
             {
-                await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
-            }
-            else
-            {
-                await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
+                if (rotor)
+                {
+                    await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
+                }
+                else
+                {
+                    await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
+                }
             }
         }
 
