@@ -112,6 +112,21 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         private Brick brick;
 
         /// <summary>
+        /// Ev3 brick2 declaration
+        /// </summary>
+        private Brick brick2;
+
+        /// <summary>
+        /// tPose starting
+        /// </summary>
+        private bool tPoseAccuired = false;
+
+        /// <summary>
+        /// Precision
+        /// </summary>
+        private float tPosePrecision = 0.05f;
+
+        /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
         public MainWindow()
@@ -132,11 +147,15 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 this.brick = new Brick(new BluetoothCommunication("COM4"));
                 await this.brick.ConnectAsync();
                 await this.brick.DirectCommand.PlayToneAsync(100, 600, 500);
+                this.brick2 = new Brick(new BluetoothCommunication("COM3"));
+                await this.brick2.ConnectAsync();
+                await this.brick2.DirectCommand.PlayToneAsync(100, 600, 500);
                 Trace.WriteLine("Brick started");
             }
             catch (IOException)
             {
                 this.brick = null;
+                this.brick2 = null;
                 Trace.WriteLine("No brick detected");
             }
 
@@ -254,6 +273,20 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             }
         }
 
+        private bool PosCompare(float shoulder, float elbow, float wrist)
+        {
+            /*Trace.WriteLine(shoulder + " " + elbow + " " + wrist + " " + this.tPosePrecision);
+            Trace.WriteLine(shoulder < elbow && shoulder + this.tPosePrecision >= elbow);
+            Trace.WriteLine(shoulder > elbow &&shoulder - this.tPosePrecision <= elbow);*/
+            if(((shoulder < elbow && shoulder + this.tPosePrecision >= elbow) || (shoulder > elbow && shoulder - this.tPosePrecision <= elbow)) && ((shoulder < elbow && shoulder + this.tPosePrecision >= wrist) || (shoulder > elbow && shoulder - this.tPosePrecision <= wrist)))
+            {
+                //Trace.WriteLine("true");
+                return true;
+            }
+            //Trace.WriteLine("false");
+            return false;
+        }
+
         /// <summary>
         /// Draws a arms bones and joints and logs them
         /// </summary>
@@ -265,7 +298,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             if (this.leftHanded)
             {
                 // Render Left Arm
-                this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
+                /*this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
                 this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
                 this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
 
@@ -288,9 +321,21 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     "Left hand: " + skeleton.Joints[JointType.HandLeft].Position.X 
                     + " " + skeleton.Joints[JointType.HandLeft].Position.Y 
                     + " " + skeleton.Joints[JointType.HandLeft].Position.Z
-                );
+                );*/
+
+                if (PosCompare(skeleton.Joints[JointType.ShoulderLeft].Position.Z, skeleton.Joints[JointType.ElbowLeft].Position.Z, skeleton.Joints[JointType.WristLeft].Position.Z) && PosCompare(skeleton.Joints[JointType.ShoulderLeft].Position.Y, skeleton.Joints[JointType.ElbowLeft].Position.Y, skeleton.Joints[JointType.WristLeft].Position.Y))
+                {
+                    this.tPoseAccuired = true;
+                }
+
                 // Send data to brick
-                moveRotors(false);
+                if (this.tPoseAccuired)
+                {
+                    float z = skeleton.Joints[JointType.ShoulderLeft].Position.Z - skeleton.Joints[JointType.WristLeft].Position.Z;
+                    float y = skeleton.Joints[JointType.ShoulderLeft].Position.Y - skeleton.Joints[JointType.WristLeft].Position.Y;
+                    float x = skeleton.Joints[JointType.ShoulderLeft].Position.X - skeleton.Joints[JointType.WristLeft].Position.X;
+                    moveRotors(false, x, y, z);
+                }
             }
             else
             {
@@ -299,7 +344,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
                 this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
 
-                Trace.WriteLine(
+                /*Trace.WriteLine(
                     "Right shoulder: " + skeleton.Joints[JointType.ShoulderRight].Position.X 
                     + " " + skeleton.Joints[JointType.ShoulderRight].Position.Y 
                     + " " + skeleton.Joints[JointType.ShoulderRight].Position.Z
@@ -318,10 +363,21 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     "Right hand: " + skeleton.Joints[JointType.HandRight].Position.X 
                     + " " + skeleton.Joints[JointType.HandRight].Position.Y 
                     + " " + skeleton.Joints[JointType.HandRight].Position.Z
-                );
+                );*/
+
+                if (PosCompare(skeleton.Joints[JointType.ShoulderRight].Position.Z, skeleton.Joints[JointType.ElbowRight].Position.Z, skeleton.Joints[JointType.WristRight].Position.Z) && PosCompare(skeleton.Joints[JointType.ShoulderRight].Position.Y, skeleton.Joints[JointType.ElbowRight].Position.Y, skeleton.Joints[JointType.WristRight].Position.Y))
+                {
+                    this.tPoseAccuired = true;
+                }
 
                 // Send data to brick
-                moveRotors(true);
+                if (this.tPoseAccuired)
+                {
+                    float z = skeleton.Joints[JointType.ShoulderRight].Position.Z - skeleton.Joints[JointType.WristRight].Position.Z;
+                    float y = skeleton.Joints[JointType.ShoulderRight].Position.Y - skeleton.Joints[JointType.WristRight].Position.Y;
+                    float x = skeleton.Joints[JointType.ShoulderRight].Position.X - skeleton.Joints[JointType.WristRight].Position.X;
+                    moveRotors(true, x, y, z);
+                }
             }
 
             
@@ -351,17 +407,75 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// moving robot 
         /// </summary>
         /// <param name="rotor">true means right hand, false left</param>
-        private async void moveRotors(bool rotor)
+        private async void moveRotors(bool rotor, float x, float y, float z)
         {
-            if(this.brick != null)
+            //100 do - 100
+            //y + ruszamy do góry
+
+            //position multiplier
+            x = x*100;
+            int xVal = (int) x; 
+            if(xVal < 0 && xVal < -100)
             {
-                if (rotor)
+                xVal = -100;
+            }
+
+            if(xVal > 0 && xVal > 100)
+            {
+                xVal = 100;
+            }
+
+            if(xVal < 10 && xVal > -10)
+            {
+                xVal = 0;
+            }
+
+            z = z*100;
+            int zVal = (int) z;
+            if((zVal <= 25 && zVal >= 15) || zVal < 0)
+            {
+                zVal = 0;
+            }
+
+            if(zVal < 20)
+            {
+                zVal -= 20;
+            }
+
+            if(zVal > 30)
+            {
+                zVal -= 30;
+            }
+            if(xVal != 0)
+            {
+                if(this.brick != null && this.brick2 !=null)
                 {
-                    await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
+                    if (rotor)
+                    {
+                        this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, xVal, 1000, false);
+                    }
                 }
-                else
+            }
+            else
+            {
+                if(this.brick != null && this.brick2 !=null)
                 {
-                    await this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, 50, 1000, false);
+                    this.brick2.DirectCommand.StopMotorAsync(OutputPort.A, true);    
+                }
+            }
+            Trace.WriteLine(zVal);
+            if(zVal != 0)
+            {
+                if(this.brick != null && this.brick2 !=null)
+                {
+                    this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.D, zVal, 1000, false);
+                }
+            }
+            else
+            {
+                if(this.brick != null && this.brick2 !=null)
+                {
+                    this.brick2.DirectCommand.StopMotorAsync(OutputPort.D, true);    
                 }
             }
         }
@@ -444,6 +558,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         {
             if (null != this.sensor)
             {
+                tPoseAccuired = false;
                 if (this.checkLeftHandedMode.IsChecked.GetValueOrDefault())
                 {
                     this.leftHanded = true;
@@ -451,6 +566,21 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 else
                 {
                     this.leftHanded = false;
+                }
+            }
+        }
+
+        private void CheckCatchChanged(object sender, RoutedEventArgs e)
+        {
+            if (null != this.brick2)
+            {
+                if (this.checkLeftHandedMode.IsChecked.GetValueOrDefault())
+                {
+                    // run motors to catch
+                }
+                else
+                {
+                    // run motors to let   
                 }
             }
         }
