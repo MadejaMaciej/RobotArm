@@ -2,9 +2,9 @@ silnik com3
 
 A - lewo prawo cały robot
 
-B,D - przód tył ramie
+B,C - przód tył ramie
 
-C - łokieć przód tył
+D - łokieć przód tył
 
 silnik com4
 

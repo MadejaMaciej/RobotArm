@@ -331,10 +331,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 // Send data to brick
                 if (this.tPoseAccuired)
                 {
+                    float a = skeleton.Joints[JointType.ShoulderLeft].Position.X - skeleton.Joints[JointType.WristLeft].Position.X;
                     float z = skeleton.Joints[JointType.ShoulderLeft].Position.Z - skeleton.Joints[JointType.WristLeft].Position.Z;
                     float y = skeleton.Joints[JointType.ShoulderLeft].Position.Y - skeleton.Joints[JointType.WristLeft].Position.Y;
                     float x = skeleton.Joints[JointType.ShoulderLeft].Position.X - skeleton.Joints[JointType.WristLeft].Position.X;
-                    moveRotors(false, x, y, z);
+                    moveRotors(false, x, y, z, a);
                 }
             }
             else
@@ -365,7 +366,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     + " " + skeleton.Joints[JointType.HandRight].Position.Z
                 );*/
 
-                if (PosCompare(skeleton.Joints[JointType.ShoulderRight].Position.Z, skeleton.Joints[JointType.ElbowRight].Position.Z, skeleton.Joints[JointType.WristRight].Position.Z) && PosCompare(skeleton.Joints[JointType.ShoulderRight].Position.Y, skeleton.Joints[JointType.ElbowRight].Position.Y, skeleton.Joints[JointType.WristRight].Position.Y))
+                if (PosCompare(skeleton.Joints[JointType.ShoulderRight].Position.Y, skeleton.Joints[JointType.ElbowRight].Position.Y, skeleton.Joints[JointType.WristRight].Position.Y))
                 {
                     this.tPoseAccuired = true;
                 }
@@ -373,10 +374,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 // Send data to brick
                 if (this.tPoseAccuired)
                 {
-                    float z = skeleton.Joints[JointType.ShoulderRight].Position.Z - skeleton.Joints[JointType.WristRight].Position.Z;
+                    float a = skeleton.Joints[JointType.ShoulderLeft].Position.X - skeleton.Joints[JointType.WristLeft].Position.X;
+                    float z = skeleton.Joints[JointType.ShoulderLeft].Position.Y - skeleton.Joints[JointType.WristLeft].Position.Y;
                     float y = skeleton.Joints[JointType.ShoulderRight].Position.Y - skeleton.Joints[JointType.WristRight].Position.Y;
                     float x = skeleton.Joints[JointType.ShoulderRight].Position.X - skeleton.Joints[JointType.WristRight].Position.X;
-                    moveRotors(true, x, y, z);
+                    moveRotors(true, x, y, z, a);
                 }
             }
 
@@ -407,7 +409,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// moving robot 
         /// </summary>
         /// <param name="rotor">true means right hand, false left</param>
-        private async void moveRotors(bool rotor, float x, float y, float z)
+        private async void moveRotors(bool rotor, float x, float y, float z, float catcherPosition)
         {
             //100 do - 100
             //y + ruszamy do góry
@@ -432,27 +434,15 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
             z = z*100;
             int zVal = (int) z;
-            if((zVal <= 25 && zVal >= 15) || zVal < 0)
-            {
-                zVal = 0;
-            }
+            
 
-            if(zVal < 20)
-            {
-                zVal -= 20;
-            }
-
-            if(zVal > 30)
-            {
-                zVal -= 30;
-            }
             if(xVal != 0)
             {
                 if(this.brick != null && this.brick2 !=null)
                 {
                     if (rotor)
                     {
-                        this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, xVal, 1000, false);
+                        this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, xVal, 200, false);
                     }
                 }
             }
@@ -463,19 +453,57 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     this.brick2.DirectCommand.StopMotorAsync(OutputPort.A, true);    
                 }
             }
-            Trace.WriteLine(zVal);
-            if(zVal != 0)
+
+            if(zVal <= 10 && zVal >= -10)
             {
-                if(this.brick != null && this.brick2 !=null)
+                 if(this.brick != null && this.brick2 !=null)
                 {
-                    this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.D, zVal, 1000, false);
+                    this.brick2.DirectCommand.StopMotorAsync(OutputPort.D, true);    
                 }
             }
             else
             {
                 if(this.brick != null && this.brick2 !=null)
                 {
-                    this.brick2.DirectCommand.StopMotorAsync(OutputPort.D, true);    
+                    this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.D, zVal, 200, false);
+                }
+            }
+            
+             y = y*100;
+            int yVal = (int) y; 
+            if(yVal <= 10 && yVal >= -10)
+            {
+                 if(this.brick != null && this.brick2 !=null)
+                {
+                    this.brick2.DirectCommand.StopMotorAsync(OutputPort.B, true);    
+                    this.brick2.DirectCommand.StopMotorAsync(OutputPort.C, true);    
+                }
+            }
+            else
+            {
+                if(this.brick != null && this.brick2 !=null)
+                {
+                    this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.B, yVal, 200, false);
+                    this.brick2.DirectCommand.StepMotorAtSpeedAsync(OutputPort.C, yVal, 200, false);
+                }
+            }
+
+            catcherPosition = catcherPosition*100;
+            int speedCatcher = (int) catcherPosition;
+            speedCatcher /= 2;
+
+            if(speedCatcher <= 10 && speedCatcher >= -10)
+            {
+                 if(this.brick != null && this.brick2 !=null)
+                {
+                    this.brick.DirectCommand.StopMotorAsync(OutputPort.A, true);      
+                }
+            }
+            else
+            {
+                if(this.brick != null && this.brick2 !=null)
+                {
+                    this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.A, speedCatcher, 200, false);
                 }
             }
         }
@@ -574,13 +602,21 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         {
             if (null != this.brick2)
             {
-                if (this.checkLeftHandedMode.IsChecked.GetValueOrDefault())
+                if (this.checkCatchMode.IsChecked.GetValueOrDefault())
                 {
                     // run motors to catch
+                    if (this.tPoseAccuired)
+                    {
+                        this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.B, -5, 75, false);
+                    }
                 }
                 else
                 {
-                    // run motors to let   
+                    // run motors to let
+                    if (this.tPoseAccuired)
+                    {
+                        this.brick.DirectCommand.StepMotorAtSpeedAsync(OutputPort.B, 5, 75, false);
+                    }
                 }
             }
         }
